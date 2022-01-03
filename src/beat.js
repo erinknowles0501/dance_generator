@@ -14,6 +14,7 @@ export default class Beat {
 
     show() {
         //TODO: Later.    env.show(this.type);
-        console.log(this.moveType);
+        //console.log(this.moveType);
+        return this.moveType;
     }
 }
