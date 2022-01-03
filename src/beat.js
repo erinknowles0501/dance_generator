@@ -1,7 +1,19 @@
-/** This class extended by Move and Rest. */
-
 export default class Beat {
-    execute() {
-        // extended only
+    moveType;
+    moveTypes = ["up", "down", "left", "right", "chu"];
+
+    constructor() {
+        this.moveType = this.setMove();
+    }
+
+    setMove() {
+        return this.moveTypes[
+            Math.floor(Math.random() * this.moveTypes.length)
+        ];
+    }
+
+    show() {
+        //TODO: Later.    env.show(this.type);
+        console.log(this.moveType);
     }
 }

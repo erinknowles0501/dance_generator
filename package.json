@@ -4,6 +4,7 @@
     "description": "",
     "main": "index.js",
     "scripts": {
+        "play": "node index.js",
         "test": "./node_modules/.bin/cypress run"
     },
     "author": "",

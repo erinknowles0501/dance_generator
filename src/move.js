@@ -12,7 +12,7 @@ export default class Move extends Beat {
         this.moveType = moveTypes[Math.floor(Math.random() * moveTypes.length)];
     }
 
-    execute() {
+    show() {
         //TODO: Later.    env.show(this.type);
         console.log(this.moveType);
     }
