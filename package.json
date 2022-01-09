@@ -12,5 +12,8 @@
     "type": "module",
     "devDependencies": {
         "cypress": "^9.2.0"
+    },
+    "dependencies": {
+        "uuid": "^8.3.2"
     }
 }

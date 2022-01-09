@@ -1,7 +1,9 @@
+import { v4 as uuidv4 } from "uuid";
 import { getRandomToMax } from "./helpers/index.js";
 import Beat from "./beat.js";
 
 export default class Bar {
+    uuid = uuidv4();
     beatsNum; // Roughly analogous to a time signature and not an absolute value - these beats can be subdivided
     beats = [];
     isSubBar;
@@ -19,7 +21,6 @@ export default class Bar {
     }
 
     generateBeats() {
-        console.log("generating beats..");
         // TODO: Use this promise code to ensure beats have generated before playing
         //return new Promise((resolve) => {
         for (let i = 1; i < this.beatsNum + 1; i++) {
@@ -57,23 +58,23 @@ export default class Bar {
     }
 
     decideIfSplit() {
-        return Math.random() < 0.2;
+        return !this.isSubBar && Math.random() < 0.2;
     }
 
-    decideIfUnsplit() {
+    decideIfUnsplit(subBar) {
         // If subBar only contains two beats and the first one is a beat and the second is a rest,
-        // convert to a beat instead of a subbar for simplicity's sake
+        // convert to a beat instead of a subbar for simplicity's sake,
         // since they sound the same.
         // This functionality might be otherwise approached in this.makeBeats() with checks,
         // But I feel like doing it this way will make future functionality easier...
-        console.log("unsplit!");
-        console.log("beats in unsplit", this.beats);
-        const numRealBeats = this.beats.reduce((prevValue, currentValue) => {
-            console.log(prevValue, currentValue);
-            // if (currentValue) {
-            // }
-        });
-        if (numRealBeats === 1 && this.beats[0]) {
+        const numRealBeats = subBar.reduce((prevValue, currentValue, index) => {
+            if (!!currentValue) {
+                return prevValue + 1;
+            } else {
+                return prevValue;
+            }
+        }, 0);
+        if (numRealBeats === 1 && !!subBar[0]) {
             return true;
         }
         return false;
@@ -82,14 +83,13 @@ export default class Bar {
     makeBeat() {
         // TODO add 'repeating pattern' functionality ie grab a section and
         //   maybe repeat it at some point - easier and more rythmic than true random.
-        // TODO add chance for half-bar of only 4 beats for intensity
 
         if (this.decideIfSplit()) {
             const subBar = new Bar(2, true);
-            if (this.decideIfUnsplit()) {
+            if (this.decideIfUnsplit(subBar.beats)) {
                 return subBar.beats[0];
             }
-            return this.subBar;
+            return subBar;
         } else {
             return this.decideIfRest() ? null : new Beat();
         }
