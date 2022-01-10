@@ -143,4 +143,16 @@ export default class Bar {
         });
         // }, playSpeed * 1000);
     }
+
+    static hasAtLeastOneBeat(beats) {
+        return beats.reduce((hasBeats, beat) => {
+            if (!!beat && beat.moveType) {
+                return true;
+            }
+            if (beat.beats && Bar.hasAtLeastOneBeat(beat)) {
+                return true;
+            }
+            return hasBeats;
+        }, false);
+    }
 }
