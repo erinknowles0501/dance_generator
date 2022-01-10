@@ -1,15 +1,18 @@
+import { v4 as uuidv4 } from "uuid";
+import { getRandomToMax } from "./helpers/index.js";
+
 export default class Beat {
     moveType;
-    moveTypes = ["up", "down", "left", "right", "chu"];
+    static moveTypes = ["up", "down", "left", "right", "chu"];
+    uuid = uuidv4();
 
     constructor() {
         this.moveType = this.setMove();
+        // console.log(`made beat ${this.moveType} ${this.uuid}`);
     }
 
     setMove() {
-        return this.moveTypes[
-            Math.floor(Math.random() * this.moveTypes.length)
-        ];
+        return Beat.moveTypes[getRandomToMax(Beat.moveTypes.length - 1)];
     }
 
     show() {
