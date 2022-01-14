@@ -8,7 +8,6 @@ export default class Beat {
 
     constructor() {
         this.moveType = this.setMove();
-        // console.log(`made beat ${this.moveType} ${this.uuid}`);
     }
 
     setMove() {
@@ -17,7 +16,6 @@ export default class Beat {
 
     show() {
         //TODO: Later.    env.show(this.type);
-        //console.log(this.moveType);
         return this.moveType;
     }
 }

@@ -5,7 +5,8 @@
     "main": "index.js",
     "scripts": {
         "play": "node index.js",
-        "test": "./node_modules/.bin/cypress run"
+        "test": "./node_modules/.bin/cypress run",
+        "test:current": "./node_modules/.bin/cypress run --spec 'cypress/integration/bar.spec.js'"
     },
     "author": "",
     "license": "ISC",
