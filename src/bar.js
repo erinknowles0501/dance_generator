@@ -8,7 +8,7 @@ export default class Bar {
     beats = [];
     isSubBar;
 
-    constructor(beatsNum = null, subBar = false) {
+    constructor(beatsNum = null, subBar = false, beats = []) {
         this.isSubBar = subBar;
 
         if (!beatsNum) {
@@ -18,13 +18,19 @@ export default class Bar {
             this.beatsNum = beatsNum;
         }
 
-        this.generateBeats();
+        if (beats.length) {
+            this.beats = beats;
+        } else {
+            this.generateBeats();
+        }
     }
 
     generateBeats() {
         // TODO: Use promise to ensure beats have generated before playing
         while (this.beats.length < this.beatsNum) {
             if (this.decideIfRepeat()) {
+                // TODO repeat grabs even-numbered amount of beats and starts at odd-numbered beats....?
+                // TODO repeat inserts repeated section anywhere in beat after original section - might skip 1+ beats first
                 const repeatLength = this.decideRepeatLength(
                     this.beatsNum - this.beats.length
                 );
@@ -40,6 +46,26 @@ export default class Bar {
 
             this.makeBeat();
         }
+
+        // TODO Erin: Warning! This code sparks an infinite loop if rest probability is too high :)
+        // TODO Erin: While this is 'technically' 'right' 'I guess' it doesn't feel right.
+        // if (
+        //     this.beats.length === this.beatsNum &&
+        //     !this.isSubBar &&
+        //     !Bar.hasAtLeastOneBeat(this.beats)
+        // ) {
+        //     // Re-roll!
+        //     this.beats = [];
+        //     this.generateBeats();
+        // }
+        if (
+            this.beats.length === this.beatsNum &&
+            !this.isSubBar &&
+            !Bar.hasAtLeastOneBeat(this.beats)
+        ) {
+            // Pick a random beat and initialize it.
+            this.beats[getRandomToMax(this.beats.length - 1)] = new Beat();
+        }
         //});
     }
 
@@ -48,8 +74,8 @@ export default class Bar {
         // TODO Add avoidance for odd-numbered beats - ie, somewhat avoid syncopation to make it easier!
         // TODO Something like, minimum rests per bar? Unless half-bar or has large repeating pattern?
         // TODO Max rests per bar - some percentage maybe as upper bound, but, at very least, can't have an all-rest bar!
-        const restProbabilityMax = 4;
-        const restProbabilityMin = 1;
+        const restProbabilityMax = 10;
+        const restProbabilityMin = 5;
         const restProbability =
             getRandomToMax(restProbabilityMax) + restProbabilityMin;
 
@@ -99,8 +125,6 @@ export default class Bar {
     }
 
     makeBeat() {
-        // TODO repeat grabs even-numbered amount of beats and starts at odd-numbered beats....?
-        // TODO repeat inserts repeated section anywhere in beat after original section - might skip 1+ beats first
         // TODO insert multi-beat "freestyle" section - user defines an original move and performs it here :)
         // TODO insert multi-beat "come up with freestyle!" section - instead of defining your moves in advance, have to come up with something YOU CAN REMEMBER in real time, which you'll have to use whenever the freestyle section comes around until the next time the "come up with freestyle" section happens. NOTE that the way to make this less abusable (let's say they're not allowed to just sit there, but to prevent them from just rest, rest, rest, left, will need a) an audience they'll want to impress, and b) a 'flow' they'll want to keep in the groove of.
 
@@ -108,10 +132,13 @@ export default class Bar {
             const subBar = new Bar(2, true);
             if (this.decideIfUnsplit(subBar.beats)) {
                 this.beats.push(subBar.beats[0]);
+                return;
             }
             this.beats.push(subBar);
+            return;
         } else {
             this.beats.push(this.decideIfRest() ? null : new Beat());
+            return;
         }
     }
 
@@ -149,7 +176,7 @@ export default class Bar {
             if (!!beat && beat.moveType) {
                 return true;
             }
-            if (beat.beats && Bar.hasAtLeastOneBeat(beat)) {
+            if (!!beat && beat.beats && Bar.hasAtLeastOneBeat(beat.beats)) {
                 return true;
             }
             return hasBeats;
