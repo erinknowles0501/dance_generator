@@ -4,10 +4,15 @@ import { getRandomToMax } from "./helpers/index.js";
 export default class Beat {
     moveType;
     static moveTypes = ["up", "down", "left", "right", "chu"];
+    static freestyleType = "FREESTYLE";
     uuid = uuidv4();
 
-    constructor() {
-        this.moveType = this.setMove();
+    constructor(moveType = null) {
+        if (!!moveType) {
+            this.moveType = moveType;
+        } else {
+            this.moveType = this.setMove();
+        }
     }
 
     setMove() {

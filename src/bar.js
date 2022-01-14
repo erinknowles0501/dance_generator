@@ -1,5 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import { getRandomToMax } from "./helpers/index.js";
+import { getRandomToMax } from "./helpers/index.js"; // TODO Add 'roll percentage' - ie percentage(20) where it returns true or false with a 20% distribution.
 import Beat from "./beat.js";
 
 export default class Bar {
@@ -44,6 +44,17 @@ export default class Bar {
                 continue;
             }
 
+            if (this.decideIfFreestyle()) {
+                const freestyleLength = this.decideFreestyleLength(
+                    this.beatsNum - this.beats.length
+                );
+                for (let i = 0; i < freestyleLength; i++) {
+                    this.beats.push(new Beat(Beat.freestyleType));
+                }
+                // NOTE Erin: Because decideIfRepeat() comes first, it has a higher chance of happening, even if they're weighted to technically both be 50/50.
+                continue;
+            }
+
             this.makeBeat();
         }
 
@@ -74,8 +85,8 @@ export default class Bar {
         // TODO Add avoidance for odd-numbered beats - ie, somewhat avoid syncopation to make it easier!
         // TODO Something like, minimum rests per bar? Unless half-bar or has large repeating pattern?
         // TODO Max rests per bar - some percentage maybe as upper bound, but, at very least, can't have an all-rest bar!
-        const restProbabilityMax = 10;
-        const restProbabilityMin = 5;
+        const restProbabilityMax = 4;
+        const restProbabilityMin = 1;
         const restProbability =
             getRandomToMax(restProbabilityMax) + restProbabilityMin;
 
@@ -97,10 +108,26 @@ export default class Bar {
         ); // TODO: In theory should someday be able to support isSubBar.
     }
 
+    decideIfFreestyle() {
+        const hasAtLeastOneBeatLeft = this.beatsNum - this.beats.length >= 1;
+        return hasAtLeastOneBeatLeft && Math.random() < 0.2;
+    }
+
     decideRepeatLength(remainingBeats) {
         const maxSafeDoubleNum = Math.floor(remainingBeats / 2);
-        return getRandomToMax(maxSafeDoubleNum) + 1;
+        return getRandomToMax(maxSafeDoubleNum) + 1; // getRandomToMax() already adds 1 (to get positive number inclusive of max) so we add another to ensure repeat length is at least two beats long.
         // TODO Replace with helper function 'getRandomFromMinToMax' and rename 'getRandomToMax' to 'getRandomFromZeroToMax'
+    }
+
+    decideFreestyleLength(remainingBeats) {
+        // TODO: This function and decideRepeatLength should be combined somehow.
+        // TODO: When can prompt the user to define a freestyle, this should be used to define freestyle length, which should then be stored.
+        const maxSafeNum = Math.floor(remainingBeats);
+        const maxFreestyleLength = Math.floor(this.beatsNum / 2);
+        return getRandomToMax(
+            maxSafeNum > maxFreestyleLength ? maxFreestyleLength : maxSafeNum
+        );
+        // TODO Replace with helper function 'getRandomFromMinToMax' and rename 'getRandomToMax' to 'getRandomFromZeroToMax' - OR, don't replace??
     }
 
     decideIfUnsplit(subBar) {
