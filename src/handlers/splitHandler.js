@@ -1,6 +1,10 @@
+import { rollPercentage } from "../helpers/index.js";
+
 export default class SplitHandler {
+    splitPercentChance = 20;
+
     static decideIfSplit() {
-        return Math.random() < 0.2;
+        return rollPercentage(this.splitPercentChance);
     }
 
     static decideIfUnsplit(subBar) {

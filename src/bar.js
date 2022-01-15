@@ -1,5 +1,9 @@
 import { v4 as uuidv4 } from "uuid";
-import { getRandomToMax } from "./helpers/index.js"; // TODO Add 'roll percentage' - ie percentage(20) where it returns true or false with a 20% distribution.
+import {
+    getRandomFromMinToMax,
+    getRandomFromZeroToMax,
+    rollPercentage,
+} from "./helpers/index.js";
 import Beat from "./beat.js";
 import SplitHandler from "./handlers/splitHandler.js";
 import RepeatHandler from "./handlers/repeatHandler.js";
@@ -20,7 +24,7 @@ export default class Bar {
 
         if (!beatsNum) {
             // TODO This 'decide if half-bar' should live elsewhere...?
-            this.beatsNum = getRandomToMax(2) == 1 ? 8 : 4;
+            this.beatsNum = rollPercentage(80) ? 8 : 4; // TODO: Short bars should be followed by another short bar.
         } else {
             this.beatsNum = beatsNum;
         }
@@ -59,9 +63,10 @@ export default class Bar {
                     this.getRemainingBeats()
                 )
             ) {
-                const freestyleLength = this.decideFreestyleLength(
-                    this.getRemainingBeats()
-                );
+                const freestyleLength =
+                    this.freestyleHandler.decideFreestyleLength(
+                        this.getRemainingBeats()
+                    );
                 for (let i = 0; i < freestyleLength; i++) {
                     this.beats.push(new Beat(Beat.freestyleType));
                 }
@@ -89,22 +94,19 @@ export default class Bar {
             !Bar.hasAtLeastOneBeat(this.beats)
         ) {
             // Pick a random beat and initialize it.
-            this.beats[getRandomToMax(this.beats.length - 1)] = new Beat();
+            this.beats[getRandomFromZeroToMax(this.beats.length - 1)] =
+                new Beat();
         }
         //});
     }
 
     decideIfRest() {
-        // TODO How best determine rest probability percentage?
-        // TODO Add avoidance for odd-numbered beats - ie, somewhat avoid syncopation to make it easier!
+        // TODO Add avoidance for odd-numbered beats - ie, somewhat avoid syncopation to make it easier! // TODO Have synco-avoid be an easy-ifier setting.
         // TODO Something like, minimum rests per bar? Unless half-bar or has large repeating pattern?
         // TODO Max rests per bar - some percentage maybe as upper bound, but, at very least, can't have an all-rest bar!
-        const restProbabilityMax = 4;
-        const restProbabilityMin = 1;
-        const restProbability =
-            getRandomToMax(restProbabilityMax) + restProbabilityMin;
+        // TODO Constant this as restChance
 
-        return Math.random() < restProbability / 10; // Divide by 10 to convert to a number between 0 and 1, for Math.random()
+        return rollPercentage(30);
     }
 
     makeBeat() {
