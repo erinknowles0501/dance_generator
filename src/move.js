@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from "uuid";
 import { getRandomFromZeroToMax } from "./helpers/index.js";
 
-export default class Beat {
+export default class Move {
     moveType;
     static moveTypes = ["up", "down", "left", "right", "chu"];
     static freestyleType = "FREESTYLE";
@@ -16,8 +16,8 @@ export default class Beat {
     }
 
     setMove() {
-        return Beat.moveTypes[
-            getRandomFromZeroToMax(Beat.moveTypes.length - 1)
+        return Move.moveTypes[
+            getRandomFromZeroToMax(Move.moveTypes.length - 1)
         ];
     }
 

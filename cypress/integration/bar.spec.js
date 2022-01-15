@@ -9,6 +9,6 @@ describe("Bar test", () => {
 
     it("is not comprised of rests", () => {
         // TODO Erin: Roll like a thousand bars and check all.
-        expect(Bar.hasAtLeastOneBeat(bar.beats)).to.be.true;
+        expect(Bar.hasAtLeastOneMove(bar.beats)).to.be.true;
     });
 });

@@ -1,6 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 import { getRandomFromZeroToMax, rollPercentage } from "./helpers/index.js";
-import Beat from "./beat.js";
+import Move from "./move.js";
 import SplitHandler from "./handlers/splitHandler.js";
 import RepeatHandler from "./handlers/repeatHandler.js";
 import FreestyleHandler from "./handlers/freestyleHandler.js";
@@ -16,11 +16,13 @@ export default class Bar {
     freestyleHandler = new FreestyleHandler();
 
     constructor(beatsNum = null, subBar = false, beats = []) {
+        // TODO: Restructure so how many 'levels' deep into subbars we can go is a setting somewhere,
+        // and structured so can technically be however deep, instead of subBars.
         this.isSubBar = subBar;
 
         if (!beatsNum) {
-            // TODO This 'decide if half-bar' should live elsewhere...?
-            this.beatsNum = rollPercentage(80) ? 8 : 4; // TODO: Short bars should be followed by another short bar.
+            // TODO This 'decide if half-bar' should live elsewhere...? Should live in this class!
+            this.beatsNum = rollPercentage(80) ? 8 : 4; // TODO: Short bars should be followed by another short bar. Could return the number of beats the next bar needs to have from this constructor.
         } else {
             this.beatsNum = beatsNum;
         }
@@ -41,6 +43,7 @@ export default class Bar {
             ) {
                 // TODO repeat grabs even-numbered amount of beats and starts at odd-numbered beats....?
                 // TODO repeat inserts repeated section anywhere in beat after original section - might skip 1+ beats first
+                // TODO don't repeat just rests
                 const repeatLength = this.repeatHandler.decideRepeatLength(
                     this.getRemainingBeats()
                 );
@@ -64,34 +67,23 @@ export default class Bar {
                         this.getRemainingBeats()
                     );
                 for (let i = 0; i < freestyleLength; i++) {
-                    this.beats.push(new Beat(Beat.freestyleType));
+                    this.beats.push(new Move(Move.freestyleType));
                 }
                 // NOTE Erin: Because decideIfRepeat() comes first, it has a higher chance of happening, even if they're weighted to technically both be 50/50.
                 continue;
             }
 
-            this.makeBeat();
+            this.makeBeat(); // TODO. .
         }
 
-        // TODO Erin: Warning! This code sparks an infinite loop if rest probability is too high :)
-        // TODO Erin: While this is 'technically' 'right' 'I guess' it doesn't feel right.
-        // if (
-        //     this.beats.length === this.beatsNum &&
-        //     !this.isSubBar &&
-        //     !Bar.hasAtLeastOneBeat(this.beats)
-        // ) {
-        //     // Re-roll!
-        //     this.beats = [];
-        //     this.generateBeats();
-        // }
         if (
             this.beats.length === this.beatsNum &&
             !this.isSubBar &&
-            !Bar.hasAtLeastOneBeat(this.beats)
+            !Bar.hasAtLeastOneMove(this.beats)
         ) {
             // Pick a random beat and initialize it.
             this.beats[getRandomFromZeroToMax(this.beats.length - 1)] =
-                new Beat();
+                new Move();
         }
         //});
     }
@@ -117,7 +109,7 @@ export default class Bar {
             this.beats.push(subBar);
             return;
         } else {
-            this.beats.push(this.decideIfRest() ? null : new Beat());
+            this.beats.push(this.decideIfRest() ? null : new Move());
             return;
         }
     }
@@ -151,15 +143,15 @@ export default class Bar {
         // }, playSpeed * 1000);
     }
 
-    static hasAtLeastOneBeat(beats) {
-        return beats.reduce((hasBeats, beat) => {
+    static hasAtLeastOneMove(beats) {
+        return beats.reduce((hasMove, beat) => {
             if (!!beat && beat.moveType) {
                 return true;
             }
-            if (!!beat && beat.beats && Bar.hasAtLeastOneBeat(beat.beats)) {
+            if (!!beat && beat.beats && Bar.hasAtLeastOneMove(beat.beats)) {
                 return true;
             }
-            return hasBeats;
+            return hasMove;
         }, false);
     }
 
