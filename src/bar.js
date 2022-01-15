@@ -1,9 +1,5 @@
 import { v4 as uuidv4 } from "uuid";
-import {
-    getRandomFromMinToMax,
-    getRandomFromZeroToMax,
-    rollPercentage,
-} from "./helpers/index.js";
+import { getRandomFromZeroToMax, rollPercentage } from "./helpers/index.js";
 import Beat from "./beat.js";
 import SplitHandler from "./handlers/splitHandler.js";
 import RepeatHandler from "./handlers/repeatHandler.js";
@@ -15,9 +11,9 @@ export default class Bar {
     beats = [];
     isSubBar;
 
-    splitHandler = SplitHandler;
-    repeatHandler = RepeatHandler;
-    freestyleHandler = FreestyleHandler;
+    splitHandler = new SplitHandler();
+    repeatHandler = new RepeatHandler();
+    freestyleHandler = new FreestyleHandler();
 
     constructor(beatsNum = null, subBar = false, beats = []) {
         this.isSubBar = subBar;

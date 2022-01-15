@@ -6,7 +6,7 @@
     "scripts": {
         "play": "node index.js",
         "test": "./node_modules/.bin/cypress run",
-        "test:current": "./node_modules/.bin/cypress run --spec 'cypress/integration/bar.spec.js'"
+        "test:current": "./node_modules/.bin/cypress run --spec 'cypress/integration/splitHandler.spec.js'"
     },
     "author": "",
     "license": "ISC",

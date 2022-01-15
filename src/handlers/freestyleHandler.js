@@ -1,11 +1,11 @@
 import { getRandomFromMinToMax, rollPercentage } from "../helpers/index.js";
 
 export default class FreestyleHandler {
-    static minimumFreestyleLength = 2;
-    static maxFreestyleLength = 4;
-    static freestylePercentChance = 15;
+    minimumFreestyleLength = 2;
+    maxFreestyleLength = 4;
+    freestylePercentChance = 15;
 
-    static decideIfFreestyle(remainingBeats) {
+    decideIfFreestyle(remainingBeats) {
         const hasEnoughBeatsLeft =
             remainingBeats >= this.minimumFreestyleLength;
         return (
@@ -13,7 +13,7 @@ export default class FreestyleHandler {
         );
     }
 
-    static decideFreestyleLength(remainingBeats) {
+    decideFreestyleLength(remainingBeats) {
         // TODO: When can prompt the user to define a freestyle, this should be used to define freestyle length, which should then be stored.
         return getRandomFromMinToMax(
             this.minimumFreestyleLength,
