@@ -6,10 +6,13 @@ import RepeatHandler from "./handlers/repeatHandler.js";
 import FreestyleHandler from "./handlers/freestyleHandler.js";
 
 export default class Bar {
+    HALF_BAR_PERCENTAGE_CHANCE = 15;
+
     uuid = uuidv4();
     beatsNum; // Roughly analogous to a time signature and not an absolute value - these beats can be subdivided
     beats = [];
     isSubBar;
+    isHalfBar;
 
     splitHandler = new SplitHandler();
     repeatHandler = new RepeatHandler();
@@ -21,8 +24,13 @@ export default class Bar {
         this.isSubBar = subBar;
 
         if (!beatsNum) {
-            // TODO This 'decide if half-bar' should live elsewhere...? Should live in this class!
-            this.beatsNum = rollPercentage(80) ? 8 : 4; // TODO: Short bars should be followed by another short bar. Could return the number of beats the next bar needs to have from this constructor.
+            if (this.decideIfHalfBar()) {
+                // TODO: Short bars should be followed by another short bar.
+                this.beatsNum = 4;
+                this.isHalfBar = true;
+            } else {
+                this.beatsNum = 8;
+            }
         } else {
             this.beatsNum = beatsNum;
         }
@@ -36,56 +44,54 @@ export default class Bar {
 
     generateBeats() {
         // TODO: Use promise to ensure beats have generated before playing
-        while (this.beats.length < this.beatsNum) {
-            if (
-                !this.isSubBar &&
-                this.repeatHandler.decideIfRepeat(this.beats, this.beatsNum)
-            ) {
-                // TODO repeat grabs even-numbered amount of beats and starts at odd-numbered beats....?
-                // TODO repeat inserts repeated section anywhere in beat after original section - might skip 1+ beats first
-                // TODO don't repeat just rests
-                const repeatLength = this.repeatHandler.decideRepeatLength(
-                    this.getRemainingBeats()
-                );
 
-                const beatsToRepeat = this.beats.slice(
-                    this.beats.length - repeatLength
-                );
-                beatsToRepeat.forEach((beat) => {
+        while (this.beats.length < this.beatsNum) {
+            const remainingBeats = this.getRemainingBeats();
+            // TODO: Could also look at a factory on repeat/freestyle/split since they share makeBeats() and clear() (and, more or less, decideShouldMakeBeats()).
+            const beatPossibilities = [this.makeSingleBeat()];
+            if (this.repeatHandler.decideIfRepeat(this.beats, remainingBeats)) {
+                beatPossibilities.push(this.repeatHandler.makeBeats());
+                this.repeatHandler.clear();
+            }
+            if (this.freestyleHandler.decideIfFreestyle(remainingBeats)) {
+                beatPossibilities.push(this.freestyleHandler.makeBeats());
+                this.freestyleHandler.clear();
+            }
+            if (!this.isSubBar && this.splitHandler.decideIfSplit()) {
+                beatPossibilities.push(this.splitHandler.makeBeats());
+            }
+
+            const whichIndex = getRandomFromZeroToMax(
+                beatPossibilities.length - 1
+            );
+
+            const beatsToPush = beatPossibilities[whichIndex];
+
+            if (beatsToPush !== null && !!beatsToPush.length) {
+                beatsToPush.forEach((beat) => {
                     this.beats.push(beat);
                 });
-                continue;
+            } else {
+                this.beats.push(beatsToPush);
             }
-
-            if (
-                this.freestyleHandler.decideIfFreestyle(
-                    this.getRemainingBeats()
-                )
-            ) {
-                const freestyleLength =
-                    this.freestyleHandler.decideFreestyleLength(
-                        this.getRemainingBeats()
-                    );
-                for (let i = 0; i < freestyleLength; i++) {
-                    this.beats.push(new Move(Move.freestyleType));
-                }
-                // NOTE Erin: Because decideIfRepeat() comes first, it has a higher chance of happening, even if they're weighted to technically both be 50/50.
-                continue;
-            }
-
-            this.makeBeat(); // TODO. .
         }
 
+        // Check for a bar that's all rests and 'fix'
+        // Re-rolling a new bar is dangerous if rest percentage is too high - as it approaches 100%, the chance of an infinite loop also approaches 100%...
         if (
             this.beats.length === this.beatsNum &&
             !this.isSubBar &&
             !Bar.hasAtLeastOneMove(this.beats)
         ) {
-            // Pick a random beat and initialize it.
+            // Pick a random beat and initialize it as a move.
             this.beats[getRandomFromZeroToMax(this.beats.length - 1)] =
                 new Move();
         }
         //});
+    }
+
+    makeSingleBeat() {
+        return this.decideIfRest() ? null : new Move();
     }
 
     decideIfRest() {
@@ -97,21 +103,8 @@ export default class Bar {
         return rollPercentage(30);
     }
 
-    makeBeat() {
-        // TODO insert multi-beat "come up with freestyle!" section - instead of defining your moves in advance, have to come up with something YOU CAN REMEMBER in real time, which you'll have to use whenever the freestyle section comes around until the next time the "come up with freestyle" section happens. NOTE that the way to make this less abusable (let's say they're not allowed to just sit there, but to prevent them from just rest, rest, rest, left, will need a) an audience they'll want to impress, and b) a 'flow' they'll want to keep in the groove of.
-
-        if (!this.isSubBar && this.splitHandler.decideIfSplit()) {
-            const subBar = new Bar(2, true);
-            if (this.splitHandler.decideIfUnsplit(subBar.beats)) {
-                this.beats.push(subBar.beats[0]);
-                return;
-            }
-            this.beats.push(subBar);
-            return;
-        } else {
-            this.beats.push(this.decideIfRest() ? null : new Move());
-            return;
-        }
+    decideIfHalfBar() {
+        return rollPercentage(this.HALF_BAR_PERCENTAGE_CHANCE);
     }
 
     play() {

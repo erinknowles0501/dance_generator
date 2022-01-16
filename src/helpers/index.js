@@ -1,6 +1,3 @@
-// TODO Add 'roll percentage' - ie percentage(20) where it returns true or false with a 20% distribution.
-// Should be easy easy to plug into settings controller.
-
 export function rollPercentage(percent) {
     // Percentage is int from 1-99.
     // Has a [percent]% chance of returning true.
@@ -10,10 +7,12 @@ export function rollPercentage(percent) {
 }
 
 export function getRandomFromZeroToMax(max) {
-    // TODO check math to ensure even distribution
-    return Math.floor(Math.random() * max + 1);
+    // From: https://stackoverflow.com/a/1527820
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max + 1));
 }
 
 export function getRandomFromMinToMax(min, max) {
-    return Math.floor(Math.random() * max + min);
+    // From: https://stackoverflow.com/a/1527820
+    return Math.floor(Math.random() * (max - min + 1) + min);
 }
