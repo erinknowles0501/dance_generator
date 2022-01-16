@@ -1,13 +1,11 @@
 import Bar from "./src/bar.js";
-import Env from "./src/env.js";
+import WebEnv from "./src/environments/web.js";
 
 // TODO: Add settings to expose difficulty level
 
-console.log(`
--------------------
-NEW
--------------------
-`);
+// TODO: Conditionally set environment.
+const env = new WebEnv();
+
 const bar = new Bar();
 
-bar.play();
+env.play(bar);

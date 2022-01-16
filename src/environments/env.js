@@ -1,6 +1,8 @@
 class Env {
+    ENV_TYPE;
+
     constructor(type) {
-        this.type = type;
+        this.ENV_TYPE = type;
     }
 
     show(moveType) {
@@ -16,4 +18,4 @@ class Env {
     }
 }
 
-export default new Env();
+export default Env;

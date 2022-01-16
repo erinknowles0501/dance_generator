@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from "uuid";
+//import { v4 as uuidv4 } from "uuid";
 import { getRandomFromZeroToMax, rollPercentage } from "./helpers/index.js";
 import Move from "./move.js";
 import SplitHandler from "./handlers/splitHandler.js";
@@ -8,7 +8,7 @@ import FreestyleHandler from "./handlers/freestyleHandler.js";
 export default class Bar {
     HALF_BAR_PERCENTAGE_CHANCE = 15;
 
-    uuid = uuidv4();
+    //    uuid = uuidv4();
     beatsNum; // Roughly analogous to a time signature and not an absolute value - these beats can be subdivided
     beats = [];
     isSubBar;
@@ -110,11 +110,6 @@ export default class Bar {
     }
 
     play() {
-        // TODO move the play speed out
-        // const playSpeed = 0.75; // How many seconds to linger on a beat.
-
-        // TODO Use requestAnimationFrame when/if move to browser.
-        // setTimeout(() => {
         this.beats.forEach((beat) => {
             if (beat === null) {
                 console.log((this.isSubBar ? "--- " : "") + "...");
@@ -124,18 +119,8 @@ export default class Bar {
                 beat.play();
                 return;
             }
-            // if (this.isSubBar) {
-            //     console.log("is subbar", this.beats);
-            //     //console.log("---", beat.moveType);
-
-            //     return;
-            // }
-            // if (beat.bar.isSubBar) {
-
-            // }
             console.log((this.isSubBar ? "--- " : "") + beat.moveType);
         });
-        // }, playSpeed * 1000);
     }
 
     static hasAtLeastOneMove(beats) {

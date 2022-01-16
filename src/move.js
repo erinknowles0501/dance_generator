@@ -1,11 +1,11 @@
-import { v4 as uuidv4 } from "uuid";
+//import { v4 as uuidv4 } from "uuid";
 import { getRandomFromZeroToMax } from "./helpers/index.js";
 
 export default class Move {
     moveType;
     static moveTypes = ["up", "down", "left", "right", "chu"];
     static freestyleType = "FREESTYLE";
-    uuid = uuidv4();
+    //uuid = uuidv4();
 
     constructor(moveType = null) {
         if (!!moveType) {
