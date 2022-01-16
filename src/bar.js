@@ -12,7 +12,7 @@ export default class Bar {
     beatsNum; // Roughly analogous to a time signature and not an absolute value - these beats can be subdivided
     beats = [];
     isSubBar;
-    isHalfBar;
+    isHalfBar = false;
 
     splitHandler = new SplitHandler();
     repeatHandler = new RepeatHandler();
@@ -47,26 +47,28 @@ export default class Bar {
 
         while (this.beats.length < this.beatsNum) {
             const remainingBeats = this.getRemainingBeats();
-            // TODO: Could also look at a factory on repeat/freestyle/split since they share makeBeats() and clear() (and, more or less, decideShouldMakeBeats()).
-            const beatPossibilities = [this.makeSingleBeat()];
-            if (this.repeatHandler.decideIfRepeat(this.beats, remainingBeats)) {
-                beatPossibilities.push(this.repeatHandler.makeBeats());
-                this.repeatHandler.clear();
-            }
-            if (this.freestyleHandler.decideIfFreestyle(remainingBeats)) {
-                beatPossibilities.push(this.freestyleHandler.makeBeats());
-                this.freestyleHandler.clear();
-            }
-            if (!this.isSubBar && this.splitHandler.decideIfSplit()) {
-                beatPossibilities.push(this.splitHandler.makeBeats());
-            }
 
-            const whichIndex = getRandomFromZeroToMax(
-                beatPossibilities.length - 1
+            // TODO: Could also look at a factory or something on repeat/freestyle/split
+            // since they share makeBeats() (and, more or less, decideShouldMakeBeats()).
+            let beatPossibilities = [
+                this.makeSingleBeat(),
+                this.repeatHandler.tryMakeBeats(this.beats, remainingBeats),
+                this.freestyleHandler.tryMakeBeats(remainingBeats),
+                this.splitHandler.tryMakeBeats(this.isSubBar),
+            ];
+
+            // The handlers return false if their "can make beats" check fails - remove any 'falses' so they're not an option.
+            beatPossibilities = beatPossibilities.filter(
+                (possibility) => possibility !== false
             );
 
-            const beatsToPush = beatPossibilities[whichIndex];
+            const beatsToPush =
+                beatPossibilities[
+                    getRandomFromZeroToMax(beatPossibilities.length - 1)
+                ];
 
+            // BeatsToPush is either an array of beats, or a Bar (if split), or a Move, or null (if a rest)
+            // So, foreach if it can be.
             if (beatsToPush !== null && !!beatsToPush.length) {
                 beatsToPush.forEach((beat) => {
                     this.beats.push(beat);

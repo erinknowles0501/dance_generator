@@ -26,7 +26,11 @@ export default class SplitHandler {
         return false;
     }
 
-    makeBeats() {
+    tryMakeBeats(isSubBar) {
+        if (isSubBar) {
+            return false;
+        }
+
         const subBar = new Bar(2, true);
         if (this.decideIfUnsplit(subBar.beats)) {
             return subBar.beats[0];

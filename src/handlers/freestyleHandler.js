@@ -8,11 +8,7 @@ export default class FreestyleHandler {
     MAX_FREESTYLE_LENGTH = 4;
     FREESTYLE_PERCENT_CHANCE = 9;
 
-    remainingBeats = 0;
-
     decideIfFreestyle(remainingBeats) {
-        this.remainingBeats = remainingBeats;
-
         const canSafelyFreestyle =
             remainingBeats >= this.MINIMUM_FREESTYLE_LENGTH;
         return (
@@ -20,25 +16,25 @@ export default class FreestyleHandler {
         );
     }
 
-    decideFreestyleLength() {
+    decideFreestyleLength(remainingBeats) {
         // TODO: When can prompt the user to define a freestyle, this should be used to define freestyle length, which should then be stored.
         const max =
-            this.remainingBeats > this.MAX_FREESTYLE_LENGTH
+            remainingBeats > this.MAX_FREESTYLE_LENGTH
                 ? this.MAX_FREESTYLE_LENGTH
-                : this.remainingBeats;
+                : remainingBeats;
         return getRandomFromMinToMax(this.MINIMUM_FREESTYLE_LENGTH, max);
     }
 
-    makeBeats() {
+    tryMakeBeats(remainingBeats) {
+        if (!this.decideIfFreestyle(remainingBeats)) {
+            return false;
+        }
+
         const moves = [];
-        const freestyleLength = this.decideFreestyleLength();
+        const freestyleLength = this.decideFreestyleLength(remainingBeats);
         for (let i = 0; i < freestyleLength; i++) {
             moves.push(new Move(Move.freestyleType));
         }
         return moves;
-    }
-
-    clear() {
-        this.remainingBeats = 0;
     }
 }

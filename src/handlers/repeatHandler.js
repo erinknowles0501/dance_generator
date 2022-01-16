@@ -8,13 +8,7 @@ export default class RepeatHandler {
     MINIMUM_REPEAT_LENGTH = 2; // Only repeating 1 beat doesn't seem very fun
     REPEAT_PERCENT_CHANCE = 25;
 
-    beats = [];
-    remainingBeats = 0;
-
     decideIfRepeat(beats, remainingBeats) {
-        this.beats = beats;
-        this.remainingBeats = remainingBeats;
-
         const hasEnoughBeatsToRepeat = beats.length >= this.minimumRepeatLength;
         const canSafelyRepeat = remainingBeats >= 2; // If we repeat two beats with only one beat left, we'll end up with too many beats!
         return (
@@ -24,25 +18,22 @@ export default class RepeatHandler {
         );
     }
 
-    decideRepeatLength() {
-        const maxSafeDoubleLength = Math.floor(this.remainingBeats / 2);
+    decideRepeatLength(remainingBeats) {
+        const maxSafeDoubleLength = Math.floor(remainingBeats / 2);
         return getRandomFromMinToMax(
             this.MINIMUM_REPEAT_LENGTH,
             maxSafeDoubleLength
         );
     }
 
-    makeBeats() {
-        const repeatLength = this.decideRepeatLength();
+    tryMakeBeats(beats, remainingBeats) {
+        if (!this.decideIfRepeat(beats, remainingBeats)) {
+            return false;
+        }
 
-        const beatsToRepeat = this.beats.slice(
-            this.beats.length - repeatLength
-        );
+        const repeatLength = this.decideRepeatLength(remainingBeats);
+
+        const beatsToRepeat = beats.slice(beats.length - repeatLength);
         return beatsToRepeat;
-    }
-
-    clear() {
-        this.beats = [];
-        this.remainingBeats = 0;
     }
 }
