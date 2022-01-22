@@ -18,7 +18,7 @@ export default class WebEnv extends Env {
             let moveText = (beat && beat.moveType) || "...";
             if (beat && beat.beats) {
                 moveText = beat.beats
-                    .map((beat) => beat && beat.moveType)
+                    .map((beat) => (beat && beat.moveType) || "...")
                     .join(", ");
             }
             moveEl.textContent = moveText;
@@ -52,19 +52,5 @@ export default class WebEnv extends Env {
         }
 
         window.requestAnimationFrame(step);
-
-        // this.bar.beats.forEach((beat, index) => {
-        //     window.requestAnimationFrame(() => {
-        //         if (beat === null) {
-        //             console.log((this.isSubBar ? "--- " : "") + "...");
-        //             return;
-        //         }
-        //         if (beat.beats) {
-        //             beat.play();
-        //             return;
-        //         }
-        //         console.log((this.isSubBar ? "--- " : "") + beat.moveType);
-        //     });
-        // });
     }
 }

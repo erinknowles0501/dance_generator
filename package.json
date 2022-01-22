@@ -5,6 +5,7 @@
     "main": "index.js",
     "scripts": {
         "play": "node index.js",
+        "dev": "vite",
         "test": "./node_modules/.bin/cypress run",
         "test:current": "./node_modules/.bin/cypress run --spec 'cypress/integration/splitHandler.spec.js'"
     },
@@ -15,6 +16,8 @@
         "cypress": "^9.2.0"
     },
     "dependencies": {
-        "uuid": "^8.3.2"
+        "aframe": "^1.2.0",
+        "uuid": "^8.3.2",
+        "vite": "^2.7.12"
     }
 }
