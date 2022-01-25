@@ -1,3 +1,7 @@
+// Rest syncopation is HARD. Too many rests makes it hard to remember where you are
+// Repeat needs to be better - Maybe stick to beat? Instead of at 3, repeat for 3, eg
+// Too hard/complicated for how long it is
+
 //import { v4 as uuidv4 } from "uuid";
 import { getRandomFromZeroToMax, rollPercentage } from "./helpers/index.js";
 import Move from "./move.js";
